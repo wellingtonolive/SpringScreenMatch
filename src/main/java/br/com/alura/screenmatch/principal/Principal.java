@@ -30,39 +30,45 @@ public class Principal {
     public void exibeMenu() {
 
         var opcao = -1;
-        while (opcao != 0){
+        while (opcao != 0) {
 
-        var menu = """
-                1 - Buscar séries
-                2 - Buscar episódios
-                3 - Listar séries buscadas
-                0 - Sair                                 
-                """;
+            var menu = """
+                    1 - Buscar séries
+                    2 - Buscar episódios
+                    3 - Listar séries buscadas
+                    4 - Buscar serie por título
+                    5 - Buscar sério por ator
+                    0 - Sair
+                    """;
 
-        System.out.println(menu);
-        opcao = leitura.nextInt();
-        leitura.nextLine();
+            System.out.println(menu);
+            opcao = leitura.nextInt();
+            leitura.nextLine();
 
-        switch (opcao) {
-            case 1:
-                buscarSerieWeb();
-                break;
-            case 2:
-                buscarEpisodioPorSerie();
-                break;
-            case 3:
-                listarSerieBuscadas();
-                break;
-            case 0:
-                System.out.println("Saindo...");
-                break;
-            default:
-                System.out.println("Opção inválida");
-        }
+            switch (opcao) {
+                case 1:
+                    buscarSerieWeb();
+                    break;
+                case 2:
+                    buscarEpisodioPorSerie();
+                    break;
+                case 3:
+                    listarSerieBuscadas();
+                    break;
+                case 4:
+                    buscaSeriePorTitulo();
+                    break;
+                case 5:
+                    buscarSeriesPorAtor();
+                    break;
+                case 0:
+                    System.out.println("Saindo...");
+                    break;
+                default:
+                    System.out.println("Opção inválida");
+            }
         }
     }
-
-
 
     private void buscarSerieWeb() {
         DadosSerie dados = getDadosSerie();
@@ -85,9 +91,7 @@ public class Principal {
         System.out.println("Escolha uma serie pelo nome: ");
         var nomeSerie = leitura.nextLine();
 
-        Optional<Serie> serie = series.stream().filter(
-                s -> s.getTitulo().toLowerCase().contains(nomeSerie.toLowerCase())
-        ).findFirst();
+        Optional<Serie> serie = serieRepository.findByTituloContainingIgnoreCase(nomeSerie);
 
         if (serie.isPresent()){
             var dadosSerie = serie.get();
@@ -118,5 +122,29 @@ public class Principal {
         series.stream().
                 sorted(Comparator.comparing(Serie:: getGenero))
                 .forEach(System.out::println);
+    }
+
+    private void buscaSeriePorTitulo() {
+        System.out.println("Escolha uma serie pelo nome: ");
+        var nomeSerie = leitura.nextLine();
+
+        Optional<Serie> serieBuscada = serieRepository.findByTituloContainingIgnoreCase(nomeSerie);
+
+        if (serieBuscada.isPresent()){
+            System.out.println("Dados da Serie: " + serieBuscada.get());
+        }
+        else{
+            System.out.println("Série não encontrada!");
+        }
+    }
+
+    private void buscarSeriesPorAtor() {
+        System.out.println("Qual nome do ator ???");
+        var nomeAtor = leitura.nextLine();
+        System.out.println("Avaliações a partir de qual nota ??");
+        var avaliacao = leitura.nextDouble();
+        List<Serie> seriesEncontradas = serieRepository.findByActoresContainingIgnoreCaseAndAvaliacaoGreaterThanEqual(nomeAtor, avaliacao);
+        System.out.println("Série em que: " + nomeAtor + " trabalhou");
+       seriesEncontradas.forEach(s -> System.out.println(s.getTitulo() + " Avaliação " + s.getAvaliacao()));
     }
 }
