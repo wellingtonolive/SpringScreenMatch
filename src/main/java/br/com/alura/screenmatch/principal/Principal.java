@@ -1,5 +1,6 @@
 package br.com.alura.screenmatch.principal;
 
+import br.com.alura.screenmatch.enums.Categoria;
 import br.com.alura.screenmatch.model.DadosSerie;
 import br.com.alura.screenmatch.model.DadosTemporada;
 import br.com.alura.screenmatch.model.Episodio;
@@ -38,6 +39,9 @@ public class Principal {
                     3 - Listar séries buscadas
                     4 - Buscar serie por título
                     5 - Buscar sério por ator
+                    6 - Buscar Top Séris
+                    7 - Buscar séries por categoria
+                    8 - Buscar séries por avaliação e temporadas
                     0 - Sair
                     """;
 
@@ -61,6 +65,15 @@ public class Principal {
                 case 5:
                     buscarSeriesPorAtor();
                     break;
+                case 6:
+                    buscarTop5Series();
+                    break;
+                case 7:
+                    buscarSeriesPorCategoria();
+                    break;
+                case 8:
+                    filtrarSeriesPorTemporadaEAvaliacao();
+                    break;
                 case 0:
                     System.out.println("Saindo...");
                     break;
@@ -69,6 +82,8 @@ public class Principal {
             }
         }
     }
+
+
 
     private void buscarSerieWeb() {
         DadosSerie dados = getDadosSerie();
@@ -147,4 +162,31 @@ public class Principal {
         System.out.println("Série em que: " + nomeAtor + " trabalhou");
        seriesEncontradas.forEach(s -> System.out.println(s.getTitulo() + " Avaliação " + s.getAvaliacao()));
     }
+
+    private void buscarTop5Series() {
+
+        List<Serie> topSeries = serieRepository.findTop5ByOrderByAvaliacaoDesc();
+        topSeries.forEach(s -> System.out.println(s.getTitulo() + " Avaliação " + s.getAvaliacao()));
+
+    }
+
+    private void buscarSeriesPorCategoria(){
+        System.out.println("Deseja buscar séris de qual categoria ???");
+        var nomeGenero = leitura.nextLine();
+        Categoria categoria = Categoria.fromStringEmPortugues(nomeGenero);
+        List<Serie> seriesPorCategoria = serieRepository.findByGenero(categoria);
+        System.out.println("Serie por categoria");
+        seriesPorCategoria.forEach(System.out::println);
+    }
+
+    private void filtrarSeriesPorTemporadaEAvaliacao(){
+        System.out.println("Filtrar séries até quantas temporadas ??");
+        var totalTemporadas = leitura.nextInt();
+        System.out.println("Com avaliacao a partir de qual valor???");
+        var avaliacao = leitura.nextDouble();
+        List<Serie> filtrosSerie = serieRepository.seriesPorTemporadaEAvaliacao(totalTemporadas, avaliacao);
+        System.out.println("***Séris Filtradas***");
+        filtrosSerie.forEach(s -> System.out.println(s.getTitulo() + " Avaliacao " + s.getAvaliacao()));
+    }
+
 }
